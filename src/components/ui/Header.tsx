@@ -21,20 +21,20 @@ export function Header({ criticalCount, totalItems }: HeaderProps) {
             <div className="grid grid-cols-2 gap-4">
                 <div className="border-2 border-industrial p-3 shadow-industrial-sm bg-industrial-surface">
                     <div className="flex items-center gap-2 text-industrial-red mb-1">
-                        <AlertTriangle size={16} strokeWidth={3} />
-                        <span className="text-xs font-bold uppercase">Crítico</span>
+                        <AlertTriangle size={14} strokeWidth={2.5} />
+                        <span className="text-[10px] font-bold uppercase">Crítico</span>
                     </div>
-                    <span className="text-3xl font-mono font-bold block text-white">{criticalCount}</span>
-                    <span className="text-[10px] text-zinc-400 uppercase font-bold">Itens vencendo</span>
+                    <span className="text-2xl font-mono font-bold block text-white leading-none mb-1">{criticalCount}</span>
+                    <span className="text-[9px] text-zinc-400 uppercase font-medium">Itens vencendo</span>
                 </div>
 
                 <div className="border-2 border-industrial p-3 shadow-industrial-sm bg-industrial-surface">
                     <div className="flex items-center gap-2 text-white mb-1">
-                        <Box size={16} strokeWidth={3} />
-                        <span className="text-xs font-bold uppercase">Total</span>
+                        <Box size={14} strokeWidth={2.5} />
+                        <span className="text-[10px] font-bold uppercase">Total</span>
                     </div>
-                    <span className="text-3xl font-mono font-bold block text-white">{totalItems}</span>
-                    <span className="text-[10px] text-zinc-400 uppercase font-bold">Produtos Ativos</span>
+                    <span className="text-2xl font-mono font-bold block text-white leading-none mb-1">{totalItems}</span>
+                    <span className="text-[9px] text-zinc-400 uppercase font-medium">Produtos Ativos</span>
                 </div>
             </div>
         </header>

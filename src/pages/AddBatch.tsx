@@ -127,28 +127,28 @@ export function AddBatch() {
                         />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
+                    <div className="grid grid-cols-2 gap-6">
+                        <div className="space-y-3">
                             <label className="text-xs font-black uppercase ml-1 block text-zinc-400">Validade</label>
                             <div className="relative">
                                 <input
                                     type="date"
                                     value={date}
                                     onChange={(e) => setDate(e.target.value)}
-                                    className="w-full bg-industrial-surface border-2 border-industrial p-4 font-bold text-white text-lg outline-none focus:border-white focus:shadow-[0px_0px_10px_rgba(255,255,255,0.2)] transition-all uppercase [&::-webkit-calendar-picker-indicator]:invert"
+                                    className="w-full bg-industrial-surface border-2 border-industrial p-4 py-6 font-bold text-white text-lg outline-none focus:border-white focus:shadow-[0px_0px_10px_rgba(255,255,255,0.2)] transition-all uppercase [&::-webkit-calendar-picker-indicator]:invert"
                                 />
                                 <Calendar size={24} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
                             </div>
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                             <label className="text-xs font-black uppercase ml-1 block text-zinc-400">Quantidade</label>
                             <input
                                 type="number"
                                 value={quantity}
                                 onChange={(e) => setQuantity(e.target.value)}
                                 placeholder="0"
-                                className="w-full bg-industrial-surface border-2 border-industrial p-4 font-bold text-white text-lg outline-none focus:border-white focus:shadow-[0px_0px_10px_rgba(255,255,255,0.2)] transition-all placeholder:text-zinc-600 text-center"
+                                className="w-full bg-industrial-surface border-2 border-industrial p-4 py-6 font-bold text-white text-lg outline-none focus:border-white focus:shadow-[0px_0px_10px_rgba(255,255,255,0.2)] transition-all placeholder:text-zinc-600 text-center"
                             />
 
                             {/* Quick Quantity Controls */}

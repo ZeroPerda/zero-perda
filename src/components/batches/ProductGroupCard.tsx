@@ -43,23 +43,23 @@ export function ProductGroupCard({ productName, productId, batches, onBatchClick
             <div className="p-3 bg-zinc-900/80 border-b-2 border-industrial flex justify-between items-center">
                 <div className="flex items-center gap-3">
                     <div className="bg-black/40 p-2 border border-industrial rounded">
-                        <Package size={20} className="text-white" />
+                        <Package size={18} className="text-white" />
                     </div>
                     <div>
-                        <h4 className="font-black text-sm uppercase text-white leading-tight">
+                        <h4 className="font-bold text-sm uppercase text-white leading-tight">
                             {productName}
                         </h4>
-                        <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
+                        <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">
                             {batches.length} {batches.length === 1 ? 'Lote' : 'Lotes'}
                         </span>
                     </div>
                 </div>
                 <div className="text-right flex items-center gap-3">
                     <div>
-                        <span className="font-mono font-bold text-lg text-white block leading-none">
+                        <span className="font-mono font-bold text-base text-white block leading-none">
                             {totalQuantity}
                         </span>
-                        <span className="text-[9px] text-zinc-500 uppercase font-bold">Total Unid.</span>
+                        <span className="text-[9px] text-zinc-500 uppercase font-medium">Total Unid.</span>
                     </div>
 
                     <button
