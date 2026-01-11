@@ -8,6 +8,7 @@ import { CriticalAlertCard } from './components/batches/CriticalAlertCard';
 import { BatchActionModal } from './components/batches/BatchActionModal';
 import { Login } from './pages/Login';
 import { AddBatch } from './pages/AddBatch';
+import { ImportPage } from './pages/ImportPage';
 import { batchService } from './services/batchService';
 import type { Batch } from './types/database.types';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -251,6 +252,11 @@ function App() {
           <Route path="/add" element={
             <ProtectedRoute>
               <AddBatch />
+            </ProtectedRoute>
+          } />
+          <Route path="/import" element={
+            <ProtectedRoute>
+              <ImportPage />
             </ProtectedRoute>
           } />
           <Route path="/login" element={<Login />} />

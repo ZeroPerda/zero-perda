@@ -4,7 +4,7 @@ import { AppShell } from '../components/layout/AppShell';
 import { BottomNav } from '../components/nav/BottomNav';
 import { ArrowLeft, Save, Loader2, AlertCircle, Calendar, Layers } from 'lucide-react';
 import { batchService } from '../services/batchService';
-import type { Section } from '../types/database.types';
+import type { Section, Product } from '../types/database.types';
 
 export function AddBatch() {
     const navigate = useNavigate();
@@ -17,10 +17,26 @@ export function AddBatch() {
     const [date, setDate] = useState('');
 
     const [existingSections, setExistingSections] = useState<Section[]>([]);
+    const [suggestedProducts, setSuggestedProducts] = useState<Product[]>([]);
 
     useEffect(() => {
         batchService.getSections().then(setExistingSections).catch(console.error);
     }, []);
+
+    // Update suggestions when section changes
+    useEffect(() => {
+        if (!section) {
+            setSuggestedProducts([]);
+            return;
+        }
+
+        const secObj = existingSections.find(s => s.name === section);
+        if (secObj) {
+            batchService.getProductsBySection(secObj.id)
+                .then(setSuggestedProducts)
+                .catch(console.error);
+        }
+    }, [section, existingSections]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -45,16 +61,25 @@ export function AddBatch() {
 
     return (
         <AppShell>
-            <header className="p-4 border-b-2 border-industrial bg-industrial-bg sticky top-0 z-40 flex items-center gap-4">
+            <header className="p-4 border-b-2 border-industrial bg-industrial-bg sticky top-0 z-40 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="bg-industrial text-white p-2 border-2 border-black shadow-industrial active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
+                    >
+                        <ArrowLeft size={20} strokeWidth={3} />
+                    </button>
+                    <h1 className="text-xl font-black uppercase tracking-tighter text-white">
+                        Novo Item
+                    </h1>
+                </div>
+
                 <button
-                    onClick={() => navigate(-1)}
-                    className="bg-industrial text-white p-2 border-2 border-black shadow-industrial active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
+                    onClick={() => navigate('/import')}
+                    className="text-xs bg-zinc-800 text-zinc-300 border border-zinc-600 px-3 py-2 font-bold uppercase tracking-wide hover:bg-zinc-700 active:bg-zinc-900"
                 >
-                    <ArrowLeft size={20} strokeWidth={3} />
+                    Importar Excel
                 </button>
-                <h1 className="text-xl font-black uppercase tracking-tighter text-white">
-                    Novo Item
-                </h1>
             </header>
 
             <main className="p-6 pb-24">
@@ -120,11 +145,17 @@ export function AddBatch() {
                         <label className="text-xs font-black uppercase ml-1 block text-zinc-400">Nome do Produto</label>
                         <input
                             type="text"
+                            list="products-list"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="Ex: LEITE INTEGRAL"
                             className="w-full bg-industrial-surface border-2 border-industrial p-4 font-bold text-white text-lg outline-none focus:border-white focus:shadow-[0px_0px_10px_rgba(255,255,255,0.2)] transition-all placeholder:text-zinc-600 uppercase"
                         />
+                        <datalist id="products-list">
+                            {suggestedProducts.map(p => (
+                                <option key={p.id} value={p.name} />
+                            ))}
+                        </datalist>
                     </div>
 
                     <div className="grid grid-cols-2 gap-6">

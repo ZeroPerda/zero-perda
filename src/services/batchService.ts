@@ -1,5 +1,5 @@
 import { supabase } from "../lib/supabase";
-import type { Batch, Section } from "../types/database.types";
+import type { Batch, Section, Product } from "../types/database.types";
 
 export const batchService = {
     // Get all active batches with product details AND section details
@@ -153,6 +153,71 @@ export const batchService = {
             .eq('id', productId);
 
         if (error) throw error;
+    },
+
+    async importProducts(items: { section: string; product: string }[]): Promise<void> {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
+        // Process sequentially to handle dependent creations (Section -> Product)
+        for (const item of items) {
+            const sectionName = item.section.trim().toUpperCase();
+            const productName = item.product.trim().toUpperCase();
+
+            // 1. Resolve Section
+            let sectionId: string;
+            const { data: existingSection } = await supabase
+                .from('sections')
+                .select('id')
+                .eq('user_id', user.id)
+                .ilike('name', sectionName)
+                .maybeSingle(); // Use maybeSingle to avoid 406 on no rows
+
+            if (existingSection) {
+                sectionId = existingSection.id;
+            } else {
+                const { data: newSection, error: secError } = await supabase
+                    .from('sections')
+                    .insert({ user_id: user.id, name: sectionName })
+                    .select()
+                    .single();
+                if (secError) throw secError;
+                sectionId = newSection.id;
+            }
+
+            // 2. Resolve Product
+            const { data: existingProduct } = await supabase
+                .from('products')
+                .select('id')
+                .eq('user_id', user.id)
+                .eq('section_id', sectionId)
+                .ilike('name', productName)
+                .maybeSingle();
+
+            if (!existingProduct) {
+                const { error: prodError } = await supabase
+                    .from('products')
+                    .insert({
+                        user_id: user.id,
+                        section_id: sectionId,
+                        name: productName,
+                        category: sectionName,
+                        min_stock_alert: 5
+                    });
+                if (prodError) throw prodError;
+            }
+        }
+    },
+
+    async getProductsBySection(sectionId: string): Promise<Product[]> {
+        const { data, error } = await supabase
+            .from('products')
+            .select('*')
+            .eq('section_id', sectionId)
+            .order('name', { ascending: true });
+
+        if (error) throw error;
+        return data as Product[];
     }
 };
 
