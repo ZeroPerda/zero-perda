@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppShell } from '../components/layout/AppShell';
 import { BottomNav } from '../components/nav/BottomNav';
-import { ArrowLeft, Save, Loader2, AlertCircle, Calendar, Layers } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertCircle, Calendar, Layers, Search, PlusCircle } from 'lucide-react';
 import { batchService } from '../services/batchService';
 import type { Section, Product } from '../types/database.types';
 
@@ -18,6 +18,7 @@ export function AddBatch() {
 
     const [existingSections, setExistingSections] = useState<Section[]>([]);
     const [suggestedProducts, setSuggestedProducts] = useState<Product[]>([]);
+    const [isNewProductMode, setIsNewProductMode] = useState(false);
 
     useEffect(() => {
         batchService.getSections().then(setExistingSections).catch(console.error);
@@ -27,14 +28,31 @@ export function AddBatch() {
     useEffect(() => {
         if (!section) {
             setSuggestedProducts([]);
+            setIsNewProductMode(true);
             return;
         }
 
         const secObj = existingSections.find(s => s.name === section);
         if (secObj) {
             batchService.getProductsBySection(secObj.id)
-                .then(setSuggestedProducts)
+                .then(products => {
+                    setSuggestedProducts(products);
+                    // Standard logic: if products exist, show dropdown (mode=false), else show input (mode=true)
+                    /* 
+                       Logic refinement: 
+                       - If I want to force dropdown when products exist: setIsNewProductMode(products.length === 0);
+                       - But if I want to keep user's choice if they already switched... 
+                         Actually, usually when changing section, we should reset to "default" behavior for that section.
+                    */
+                    setIsNewProductMode(products.length === 0);
+                    setName(''); // Clear name on section change
+                })
                 .catch(console.error);
+        } else {
+            // New section (typed manually) -> always new product
+            setSuggestedProducts([]);
+            setIsNewProductMode(true);
+            setName('');
         }
     }, [section, existingSections]);
 
@@ -142,20 +160,80 @@ export function AddBatch() {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-xs font-black uppercase ml-1 block text-zinc-400">Nome do Produto</label>
-                        <input
-                            type="text"
-                            list="products-list"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder="Ex: LEITE INTEGRAL"
-                            className="w-full bg-industrial-surface border-2 border-industrial p-4 font-bold text-white text-lg outline-none focus:border-white focus:shadow-[0px_0px_10px_rgba(255,255,255,0.2)] transition-all placeholder:text-zinc-600 uppercase"
-                        />
-                        <datalist id="products-list">
-                            {suggestedProducts.map(p => (
-                                <option key={p.id} value={p.name} />
-                            ))}
-                        </datalist>
+                        <div className="flex justify-between items-end">
+                            <label className="text-xs font-black uppercase ml-1 block text-zinc-400">Nome do Produto</label>
+
+                            {!isNewProductMode && suggestedProducts.length > 0 && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setIsNewProductMode(true);
+                                        setName('');
+                                        // Auto-focus logic might be needed here via ref, but let's keep it simple first
+                                    }}
+                                    className="text-[10px] font-bold text-industrial-yellow hover:underline"
+                                >
+                                    NOVO PRODUTO?
+                                </button>
+                            )}
+
+                            {isNewProductMode && suggestedProducts.length > 0 && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setIsNewProductMode(false);
+                                        setName('');
+                                    }}
+                                    className="text-[10px] font-bold text-industrial-yellow hover:underline"
+                                >
+                                    VOLTAR P/ LISTA
+                                </button>
+                            )}
+                        </div>
+
+                        {!isNewProductMode && suggestedProducts.length > 0 ? (
+                            <div className="relative">
+                                <select
+                                    value={name}
+                                    onChange={(e) => {
+                                        if (e.target.value === '___NEW___') {
+                                            setIsNewProductMode(true);
+                                            setName('');
+                                        } else {
+                                            setName(e.target.value);
+                                        }
+                                    }}
+                                    className="w-full bg-industrial-surface border-2 border-industrial p-4 font-bold text-white text-lg outline-none focus:border-white focus:shadow-[0px_0px_10px_rgba(255,255,255,0.2)] transition-all uppercase appearance-none"
+                                >
+                                    <option value="" disabled>SELECIONE O PRODUTO...</option>
+                                    {suggestedProducts.map(p => (
+                                        <option key={p.id} value={p.name}>
+                                            {p.name}
+                                        </option>
+                                    ))}
+                                    <option value="___NEW___" className="font-bold text-industrial-yellow">➕ NOVO PRODUTO...</option>
+                                </select>
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+                                    <Search size={24} />
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="Ex: LEITE INTEGRAL"
+                                    className="w-full bg-industrial-surface border-2 border-industrial p-4 font-bold text-white text-lg outline-none focus:border-white focus:shadow-[0px_0px_10px_rgba(255,255,255,0.2)] transition-all placeholder:text-zinc-600 uppercase"
+                                    autoFocus={isNewProductMode && suggestedProducts.length > 0}
+                                />
+                                {isNewProductMode && suggestedProducts.length > 0 && (
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-industrial-yellow animate-pulse">
+                                        <PlusCircle size={24} strokeWidth={2.5} />
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-6">
