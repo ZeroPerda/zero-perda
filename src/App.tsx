@@ -191,7 +191,7 @@ function Dashboard() {
           <section className="mb-8 p-4 bg-industrial-surface border-2 border-industrial-red shadow-[0_0_20px_rgba(239,68,68,0.2)]">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-3 h-3 bg-industrial-red rounded-full animate-ping" />
-              <h2 className="font-black text-sm uppercase tracking-wider text-industrial-red">Aleras Críticos ({criticalBatches.length})</h2>
+              <h2 className="font-black text-sm uppercase tracking-wider text-industrial-red">Alertas Críticos ({criticalBatches.length})</h2>
             </div>
             <div className="space-y-4">
               {criticalBatches.map(batch => (
